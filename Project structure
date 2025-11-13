@@ -1,0 +1,24 @@
+mern-app/
+│
+├── client/                 # React frontend
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── App.jsx
+│   │   └── index.jsx
+│   ├── package.json
+│   └── vite.config.js
+│
+├── server/                 # Express backend
+│   ├── src/
+│   │   ├── app.js
+│   │   ├── routes/
+│   │   ├── models/
+│   │   └── controllers/
+│   ├── tests/
+│   │   └── posts.test.js
+│   ├── package.json
+│   └── .env
+│
+└── README.md
+
