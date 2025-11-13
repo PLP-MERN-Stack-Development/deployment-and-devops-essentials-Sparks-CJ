@@ -1,0 +1,112 @@
+name: MERN CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Cache node modules (server)
+        uses: actions/cache@v3
+        with:
+          path: server/node_modules
+          key: ${{ runner.os }}-server-${{ hashFiles('server/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-server-
+
+      - name: Cache node modules (client)
+        uses: actions/cache@v3
+        with:
+          path: client/node_modules
+          key: ${{ runner.os }}-client-${{ hashFiles('client/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-client-
+
+  test-server:
+    runs-on: ubuntu-latest
+    needs: setup
+    working-directory: ./server
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install server dependencies
+        run: npm install
+
+      - name: Run server unit tests
+        run: npm run test:unit
+
+      - name: Run server integration tests
+        run: npm run test:integration
+
+  test-client:
+    runs-on: ubuntu-latest
+    needs: setup
+    working-directory: ./client
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install client dependencies
+        run: npm install
+
+      - name: Run client unit tests
+        run: npm run test:unit
+
+      - name: Run Cypress end-to-end tests
+        uses: cypress-io/github-action@v5
+        with:
+          build: npm run dev
+          start: npm run dev
+          wait-on: 'http://localhost:5173'
+          wait-on-timeout: 60
+          working-directory: ./client
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    needs: test-server
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy Backend to Render
+        uses: render-examples/deploy-render@v1
+        with:
+          api-key: ${{ secrets.RENDER_API_KEY }}
+          service-id: ${{ secrets.RENDER_BACKEND_SERVICE_ID }}
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: test-client
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy Frontend to Vercel
+        uses: amondnet/vercel-action@v21
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./client
+          prod: true
