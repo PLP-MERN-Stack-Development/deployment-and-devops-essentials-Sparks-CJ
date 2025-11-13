@@ -1,0 +1,20 @@
+mern-app/
+├── client/
+│   ├── public/
+│   ├── src/
+│   ├── package.json
+│   ├── vite.config.js
+│   └── ...
+├── server/
+│   ├── src/
+│   │   ├── app.js
+│   │   ├── server.js
+│   │   └── ...
+│   ├── package.json
+│   └── ...
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml
+├── .env.example
+├── README.md
+└── package.json
