@@ -1,0 +1,18 @@
+// client/jest.setup.js
+
+import '@testing-library/jest-dom'; // Provides custom jest matchers for DOM
+
+// Optional: mock window.matchMedia for components using CSS queries
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // Deprecated
+    removeListener: jest.fn(), // Deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
