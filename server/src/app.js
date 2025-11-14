@@ -1,12 +1,14 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const morgan = require('morgan');
+import dotenv from 'dotenv';
+dotenv.config();
+
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import morgan from 'morgan';
 
 // Routes
-const postsRouter = require('./routes/posts');
-const usersRouter = require('./routes/users');
+import postsRouter from './routes/posts.js';
+import usersRouter from './routes/users.js';
 
 const app = express();
 
@@ -24,19 +26,22 @@ app.get('/', (req, res) => {
   res.status(200).json({ message: 'API is running' });
 });
 
-// Global error handler
+// Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({ error: err.message || 'Server Error' });
 });
 
 // MongoDB connection
-const MONGO_URI = process.env.MONGO_URI;
-mongoose.connect(MONGO_URI)
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/mern-app';
+mongoose.connect(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
   .then(() => console.log('MongoDB connected'))
   .catch(err => {
     console.error('MongoDB connection error:', err);
     process.exit(1);
   });
 
-module.exports = app;
+export default app;
